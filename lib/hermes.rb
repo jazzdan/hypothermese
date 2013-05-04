@@ -15,6 +15,10 @@ class Hermes
     read(6)
   end
 
+  def closeSocket
+    write('STOP')
+  end
+
   def getCosts
     write('RECD')
     costs, client_address = read(@@READ_LENGTH) 

@@ -74,20 +74,20 @@ class Controller
   end 
 
   def changeInJava(currentValue, location)
-    s,b = getsb(location)
-    nexts = calculates(s,b,currentvalue,@@JavaAlpha,@@JavaBeta) 
-    nextb = calculateb(nexts,s,b,@@JavaBeta)
-    setsb(location, nexts, nextb)
+    s,b = getSB(location)
+    nexts = calculateS(s,b,currentValue,@@JavaAlpha,@@JavaBeta) 
+    nextb = calculateB(nexts,s,b,@@JavaBeta)
+    setSB(location, nexts, nextb)
     future = nexts + 4 * nextb
     diffrence = future - (s+b)
     (diffrence / @@JavaThreshold).round
   end
 
   def changeInDatabases(currentValue, location)
-    s,b = getsb(location)
-    nexts = calculates(s,b,currentvalue,@@DatabaseAlpha,@@DatabaseBeta) 
-    nextb = calculateb(nexts,s,b,@@DatabaseBeta)
-    setsb(location, nexts, nextb)
+    s,b = getSB(location)
+    nexts = calculateS(s,b,currentValue,@@DatabaseAlpha,@@DatabaseBeta) 
+    nextb = calculateB(nexts,s,b,@@DatabaseBeta)
+    setSB(location, nexts, nextb)
     future = nexts + 6 * nextb
     diffrence = future - (s+b)
     (diffrence / @@DatabaseThreshold).round
