@@ -13,10 +13,13 @@ class Hermes
     @connection = connect
     write('INIT ' + @@TEAM_NAME)
     read(6)
+  end
+
+  def getCosts
     write('RECD')
     costs, client_address = read(@@READ_LENGTH) 
     costs
-  end
+  end 
 
   def start
     write('START')
@@ -27,7 +30,7 @@ class Hermes
   #expects a string that contains the new state of the system
   def control(newState)
     #not sure if you only write the state or something additional
-    write(newState)
+    write("CONTROL " + newState)
     costs, client_address = read(@@READ_LENGTH)
     costs.split
   end

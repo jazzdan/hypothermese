@@ -34,6 +34,27 @@ class Controller
   #the "max" size of a database server
   @@DatabaseThreshold = 1000
 
+  def initialize(costs)
+    #do things with the costs and the alpha and betas
+  end
+
+  #Expects an array of current demand
+  def solve(demand)
+    na = demand[5].to_i
+    eu = demand[6].to_i
+    ap = demand[7].to_i
+    sNA = changeInServers(na, "NA")
+    jNA = changeInJava(na, "NA")
+    dNA = changeInDatabases(na, "NA") 
+    sEU = changeInServers(eu, "EU")
+    jEU = changeInJava(eu,"EU")
+    dEU = changeInDatabases(eu, "EU")
+    sAP = changeInServers(ap, "AP")
+    jAP = changeInJava(ap, "AP")
+    dAP = changeInDatabases(ap, "AP")
+    [sNA,sEU,sAP,jNA,jEU,jAP,dNA,dEU,dAP].join(" ")
+  end
+
   #@currentValue = the new demand for servers
   #@location = the location of the demand "NA"/"EU"/"AP"
   #@return = the change in servers
