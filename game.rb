@@ -6,7 +6,7 @@ def loop
   @@HERMES = Hermes.new 
   @@COSTS = @@HERMES.getCosts
   keepGoing = @@HERMES.start 
-  while(keepGoing != "STOP")
+  while(keepGoing != "END")
     config = @@HERMES.config
     demand = @@HERMES.demand
     dist   = @@HERMES.dist
