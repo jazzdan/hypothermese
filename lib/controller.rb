@@ -40,22 +40,31 @@ class Controller
     setSB(location, nextS, nextB)
     #figure out the number of connections two turns from now
     #this is the amount of time required to spin up a server
-    twoTurnsAhead = nextS + 2 * nextB
-    diffrence = twoTurnsAhead - (s+b)
+    future = nextS + 2 * nextB
+    diffrence = future - (s+b)
     #return the number of servers to turn on/off
     (diffrence / @@ServerThreshold).round
   end 
 
   def changeInJava(currentValue, location)
-    threshold = 400 
-    s,b = getSB(location)
-    nextS = calculateS(s,b,currentValue,@@ServerAlpha,@@ServerBeta) 
-    nextB = calculateB(nextS,s,b,@@ServerBeta)
-    setSB(location, nextS, nextB)
-    twoTurnsAhead = nextS + 2 * nextB
-    diffrence = twoTurnsAhead - (s+b)
-    (diffrence / threshold).round
-  end 
+    s,b = getsb(location)
+    nexts = calculates(s,b,currentvalue,@@JavaAlpha,@@JavaBeta) 
+    nextb = calculateb(nexts,s,b,@@JavaBeta)
+    setsb(location, nexts, nextb)
+    future = nexts + 4 * nextb
+    diffrence = future - (s+b)
+    (diffrence / @@JavaThreshold).round
+  end
+
+  def changeInDatabases(currentValue, location)
+    s,b = getsb(location)
+    nexts = calculates(s,b,currentvalue,@@DatabaseAlpha,@@DatabaseBeta) 
+    nextb = calculateb(nexts,s,b,@@DatabaseBeta)
+    setsb(location, nexts, nextb)
+    future = nexts + 6 * nextb
+    diffrence = future - (s+b)
+    (diffrence / @@DatabaseThreshold).round
+  end
 
   def calculateS(s,b,x,alpha,beta)
     alpha * x + (1-alpha) * (s+b)
