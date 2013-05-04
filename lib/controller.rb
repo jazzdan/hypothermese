@@ -2,37 +2,58 @@ class Controller
 
   #S and B values for North America
   @@NAS = 200 
-  @@NAB = 0
+  @@NAB = 100 
+  @@NAServers = 1
 
   #S and B values for Europe
   @@EUS = @@NAS
-  @@EUB = 0 
+  @@EUB = @@NAB 
   
   #S and B values for Asia-Pac
   @@APS = @@NAS
-  @@APB = 0
+  @@APB = @@NAB 
 
   #the alpha and beta values for web servers
-  @@ServerAlpha = 0.25
+  @@ServerAlpha = 0.75
   @@ServerBeta = 0.25
+  #The "max" size of a server
+  @@ServerThreshold = 200
 
   #the alpha and beta values for java serves
-  @@JavaAlpha = 0.25
+  @@JavaAlpha = 0.75
   @@JavaBeta = 0.25
+  #The "max" size of a java server
+  @@JavaThreshold = 500
 
   #the alpha and beta values for databases
-  @@DatabaseAlpha = 0.25
+  @@DatabaseAlpha = 0.75
   @@DatabaseBeta = 0.25
+  #the "max" size of a database server
+  @@DatabaseThreshold = 1000
 
   def changeInServers(currentValue, location)
-    threshold = 200
+    #get the s and b of the given location
+    s,b = getSB(location)
+    #calculate the future(current) s and bs
+    nextS = calculateS(s,b,currentValue,@@ServerAlpha,@@ServerBeta) 
+    nextB = calculateB(nextS,s,b,@@ServerBeta)
+    setSB(location, nextS, nextB)
+    #figure out the number of connections two turns from now
+    #this is the amount of time required to spin up a server
+    twoTurnsAhead = nextS + 2 * nextB
+    diffrence = twoTurnsAhead - (s+b)
+    #return the number of servers to turn on/off
+    (diffrence / @@ServerThreshold).round
+  end 
+
+  def changeInJava(currentValue, location)
+    threshold = 400 
     s,b = getSB(location)
     nextS = calculateS(s,b,currentValue,@@ServerAlpha,@@ServerBeta) 
     nextB = calculateB(nextS,s,b,@@ServerBeta)
-    puts nextS
-    puts @@NAS
-    diffrence = nextS - s
-    setSB(location, nextS, 0)
+    setSB(location, nextS, nextB)
+    twoTurnsAhead = nextS + 2 * nextB
+    diffrence = twoTurnsAhead - (s+b)
     (diffrence / threshold).round
   end 
 
