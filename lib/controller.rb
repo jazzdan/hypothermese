@@ -1,3 +1,6 @@
+#TODO write something that accecpts the new demand and 
+#returns the new values for each location for each type
+#of server
 class Controller
 
   #S and B values for North America
@@ -31,6 +34,9 @@ class Controller
   #the "max" size of a database server
   @@DatabaseThreshold = 1000
 
+  #@currentValue = the new demand for servers
+  #@location = the location of the demand "NA"/"EU"/"AP"
+  #@return = the change in servers
   def changeInServers(currentValue, location)
     #get the s and b of the given location
     s,b = getSB(location)
