@@ -4,7 +4,7 @@ require 'timeout'
 class Hermes
   @@URL = 'hackathon.hopto.org'
   #only one port works? and it's this one
-  @@PORTS = [23493]
+  @@PORTS = 23493
   @@TEAM_NAME = 'StorganManley'
   @@READ_LENGTH = 4096
 
@@ -20,7 +20,16 @@ class Hermes
 
   def start
     write('START')
-    read(@@READ_LENGTH)
+    costs, client_address = read(@@READ_LENGTH)
+    costs.split
+  end
+
+  #expects a string that contains the new state of the system
+  def control(newState)
+    #not sure if you only write the state or something additional
+    write(newState)
+    costs, client_address = read(@@READ_LENGTH)
+    costs.split
   end
 
   #alias the next to config to know what you're expecting
@@ -42,22 +51,14 @@ class Hermes
     self.next
   end
 
-  def control(wna, weu, wap, jna, jeu, jap, dna, deu, dap)
-    write(wna.to_s + " " + weu.to_s + " " + wap.to_s + " " +
-          jna.to_s + " " + jeu.to_s + " " + jap.to_s + " " +
-          dna.to_s + " " + deu.to_s + " " + dap.to_s + " ")
-    answer, client_address = read(@@READ_LENGTH)
-    answer 
-  end
-
   def next
     write('RECD')
     costs, client_address = read(@@READ_LENGTH)
-    costs
+    costs.split
   end
 
   def connect
-    TCPSocket.new(@@URL, @@PORTS.sample)
+    TCPSocket.new(@@URL, @@PORTS)
   end
 
   def write(msg)
