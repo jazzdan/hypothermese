@@ -21,11 +21,14 @@ def loop
     #ask for the profit
     profit = @@HERMES.profit
     #send the 'answer' and recive config
-    if(i%10==0)
+    if i%10==0
       config = @@HERMES.control(@@CONTROLLER.solve(demand))
+    elsif i > 200
+      @@HERMES.closeSocket
     else
       config = @@HERMES.control("0 0 0 0 0 0 0 0 0 0")
     end
+    i = i+1 
   end
   @@HERMES.closeSocket
 end
