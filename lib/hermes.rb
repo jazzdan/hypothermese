@@ -4,7 +4,7 @@ require 'timeout'
 class Hermes
   @@URL = 'hackathon.hopto.org'
   #only one port works? and it's this one
-  @@PORTS = 23492
+  @@PORTS = 23493
   @@TEAM_NAME = 'StorganManley'
   @@READ_LENGTH = 4096
 

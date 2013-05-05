@@ -3,29 +3,17 @@
 #of server
 class Controller
 
-  #Counter for Averages
-  @@N = 1
-
   #S and B values for North America
-  @@NAS = 200 
-  @@NAB = 100 
-  @@NASAverage = 0
-  @@NAJAverage = 0
-  @@NADAverage = 0
+  @@NAS = 150 
+  @@NAB = 150 
 
   #S and B values for Europe
   @@EUS = @@NAS
   @@EUB = @@NAB 
-  @@EUSAverage = 0
-  @@EUJAverage = 0
-  @@EUDAverage = 0
   
   #S and B values for Asia-Pac
   @@APS = @@NAS
   @@APB = @@NAB
-  @@APSAverage = 0
-  @@APJAverage = 0
-  @@APDAverage = 0
 
   #the alpha and beta values for web servers
   @@ServerAlpha = 0.75
@@ -93,7 +81,7 @@ class Controller
     setSB(location, nextS, nextB)
     #figure out the number of connections two turns from now
     #this is the amount of time required to spin up a server
-    future = nextS + 2 * nextB
+    future = nextS + nextB
     diffrence = future - (s+b)
     #return the number of servers to turn on/off
     (diffrence / @@ServerThreshold).round
@@ -104,7 +92,7 @@ class Controller
     nexts = calculateS(s,b,current,@@JavaAlpha,@@JavaBeta) 
     nextb = calculateB(nexts,s,b,@@JavaBeta)
     setSB(location, nexts, nextb)
-    future = nexts + 4 * nextb
+    future = nexts + 3 * nextb
     diffrence = future - (s+b)
     (diffrence / @@JavaThreshold).round
   end
@@ -114,7 +102,7 @@ class Controller
     nexts = calculateS(s,b,current,@@DatabaseAlpha,@@DatabaseBeta) 
     nextb = calculateB(nexts,s,b,@@DatabaseBeta)
     setSB(location, nexts, nextb)
-    future = nexts + 6 * nextb
+    future = nexts + 5 * nextb
     diffrence = future - (s+b)
     (diffrence / @@DatabaseThreshold).round
   end
@@ -150,95 +138,6 @@ class Controller
     end
   end
 
-  def getAverage(location, type)
-    if location == "NA"
-      if type == "S"
-        return @@NASAverage
-      elsif type == "J"
-        return @@NAJAverage
-      else
-        return @@NADAverage
-      end
-    elsif location == "EU"
-      if type == "S"
-        return @@EUSAverage
-      elsif type == "J"
-        return @@EUJAverage
-      else 
-        return @@EUDAverage
-      end
-    else
-      if type == "S"
-        return @@APSAverage
-      elsif type == "J"
-        return @@APJAverage
-      else
-        return @@APDAverage
-      end
-    end
-  end
-
-  def setAverage(new, location, type)
-    if location == "NA"
-      if type == "S"
-        @@NASAverage = new
-      elsif type == "J"
-        @@NAJAverage = new
-      else
-        @@NADAverage = new
-      end
-    elsif location == "EU"
-      if type == "S"
-        @@EUSAverage = new
-      elsif type == "J"
-        @@EUJAverage = new
-      else 
-        @@EUDAverage = new
-      end
-    else
-      if type == "S"
-        @@APSAverage = new
-      elsif type == "J"
-        @@APJAverage = new
-      else
-        @@APDAverage = new
-      end
-    end
-  end
-
-  def updateAverage(current, location, type, n)
-    old = getAverage(location, type)
-    new = ((n-1)*old + current)/n
-    setAverage(new, location, type)
-  end
-
-  def clearAverages
-    @@N = 1
-    setAverage(0, "NA", "S")
-    setAverage(0, "NA", "J")
-    setAverage(0, "NA", "D")
-    setAverage(0, "EU", "S")
-    setAverage(0, "EU", "J")
-    setAverage(0, "EU", "D")
-    setAverage(0, "AP", "S")
-    setAverage(0, "AP", "J")
-    setAverage(0, "AP", "D")
-  end
-
-  def updateAverages(current)
-    csNA, csEU, csAP, cjNA, cjEU, cjAP, cdNA, cdEU, cdAP = breakApartCurrent(current)
-    updateAverage(csNA, "NA", "S", @@N)
-    updateAverage(csEU, "EU", "S", @@N)
-    updateAverage(csAP, "AP", "S", @@N)
-    updateAverage(cjNA, "NA", "J", @@N)
-    updateAverage(cjEU, "EU", "J", @@N)
-    updateAverage(cjAP, "AP", "J", @@N)
-    updateAverage(cdNA, "NA", "D", @@N)
-    updateAverage(cdEU, "EU", "D", @@N)
-    updateAverage(cdAP, "AP", "D", @@N)
-    @@N = @@N + 1
-  end
-
   def breakApartCurrent(current)
     csNA = current[1].to_i
     csEU = current[2].to_i
@@ -251,5 +150,4 @@ class Controller
     cdAP = current[9].to_i
     return csNA, csEU, csAP, cjNA, cjEU, cjAP, cdNA, cdEU, cdAP
   end
-
-end 
+end
