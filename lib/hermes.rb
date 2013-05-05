@@ -17,13 +17,14 @@ class Hermes
 
   def closeSocket
     write('STOP')
+    @connection.close
   end
 
   def getCosts
     write('RECD')
     costs, client_address = read(@@READ_LENGTH) 
     costs
-  end 
+  end
 
   def start
     write('START')

@@ -5,7 +5,7 @@ require 'lib/controller.rb'
 @@COSTS = [0,0,0]
 
 def loop(alpha, beta)
-  @@HERMES = Hermes.new 
+  @@HERMES = Hermes.new
   @@COSTS = @@HERMES.getCosts
   #initialize the controller
   @@CONTROLLER = Controller.new(alpha,beta,alpha,beta,alpha,beta)

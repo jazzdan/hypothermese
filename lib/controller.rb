@@ -10,7 +10,7 @@ class Controller
   #S and B values for Europe
   @@EUS = @@NAS
   @@EUB = @@NAB 
-  
+
   #S and B values for Asia-Pac
   @@APS = @@NAS
   @@APB = @@NAB
@@ -124,7 +124,7 @@ class Controller
       return @@APS,@@APB
     end
   end
-  
+
   def setSB(location, nextS, nextB)
     if location == "NA"
       @@NAS = nextS
