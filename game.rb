@@ -8,7 +8,9 @@ def loop
   @@HERMES = Hermes.new 
   @@COSTS = @@HERMES.getCosts
   #initialize the controller
-  @@CONTROLLER = Controller.new(@@COSTS)  
+  alpha = 0.8
+  beta = 0.4
+  @@CONTROLLER = Controller.new(alpha,beta,alpha,beta,alpha,beta)
   #read the first config
   config = @@HERMES.start 
   i = 0
@@ -22,9 +24,7 @@ def loop
     profit = @@HERMES.profit
     #send the 'answer' and recive config
     if i%10==0
-      config = @@HERMES.control(@@CONTROLLER.solve(demand))
-    elsif i > 200
-      @@HERMES.closeSocket
+      config = @@HERMES.control(@@CONTROLLER.solve(demand,config))
     else
       config = @@HERMES.control("0 0 0 0 0 0 0 0 0 0")
     end

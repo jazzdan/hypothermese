@@ -3,18 +3,29 @@
 #of server
 class Controller
 
+  #Counter for Averages
+  @@N = 1
+
   #S and B values for North America
   @@NAS = 200 
   @@NAB = 100 
-  @@NAServers = 1
+  @@NASAverage = 0
+  @@NAJAverage = 0
+  @@NADAverage = 0
 
   #S and B values for Europe
   @@EUS = @@NAS
   @@EUB = @@NAB 
+  @@EUSAverage = 0
+  @@EUJAverage = 0
+  @@EUDAverage = 0
   
   #S and B values for Asia-Pac
   @@APS = @@NAS
-  @@APB = @@NAB 
+  @@APB = @@NAB
+  @@APSAverage = 0
+  @@APJAverage = 0
+  @@APDAverage = 0
 
   #the alpha and beta values for web servers
   @@ServerAlpha = 0.75
@@ -34,35 +45,50 @@ class Controller
   #the "max" size of a database server
   @@DatabaseThreshold = 1000
 
-  def initialize(costs)
-    #do things with the costs and the alpha and betas
+  def initialize(sa, sb, ja, jb, da, db)
+    @@ServerAlpha = sa
+    @@ServerBeta = sb
+    @@JavaAlpha = ja
+    @@JavaBeta = jb
+    @@DatabaseAlpha = da
+    @@DatabaseBeta = db 
   end
 
   #Expects an array of current demand
-  def solve(demand)
+  def solve(demand, current)
     na = demand[5].to_i
     eu = demand[6].to_i
     ap = demand[7].to_i
-    sNA = changeInServers(na, "NA")
-    jNA = changeInJava(na, "NA")
-    dNA = changeInDatabases(na, "NA") 
-    sEU = changeInServers(eu, "EU")
-    jEU = changeInJava(eu,"EU")
-    dEU = changeInDatabases(eu, "EU")
-    sAP = changeInServers(ap, "AP")
-    jAP = changeInJava(ap, "AP")
-    dAP = changeInDatabases(ap, "AP")
+    csNA, csEU, csAP, cjNA, cjEU, cjAP, cdNA, cdEU, cdAP = breakApartCurrent(current)
+    sNA = keepPositive(csNA,changeInServers(na, "NA"))
+    jNA = keepPositive(cjNA,changeInJava(na, "NA"))
+    dNA = keepPositive(cdNA,changeInDatabases(na, "NA")) 
+    sEU = keepPositive(csEU,changeInServers(eu, "EU"))
+    jEU = keepPositive(cjEU,changeInJava(eu,"EU"))
+    dEU = keepPositive(cdEU,changeInDatabases(eu, "EU"))
+    sAP = keepPositive(csAP,changeInServers(ap, "AP"))
+    jAP = keepPositive(cjAP,changeInJava(ap, "AP"))
+    dAP = keepPositive(cdAP,changeInDatabases(ap, "AP"))
     [sNA,sEU,sAP,jNA,jEU,jAP,dNA,dEU,dAP].join(" ")
   end
+
+  def keepPositive(current, change)
+    if (current + change) < 0
+      return 0
+    else
+     return change
+    end
+  end
+
 
   #@currentValue = the new demand for servers
   #@location = the location of the demand "NA"/"EU"/"AP"
   #@return = the change in servers
-  def changeInServers(currentValue, location)
+  def changeInServers(current, location)
     #get the s and b of the given location
     s,b = getSB(location)
     #calculate the future(current) s and bs
-    nextS = calculateS(s,b,currentValue,@@ServerAlpha,@@ServerBeta) 
+    nextS = calculateS(s,b,current,@@ServerAlpha,@@ServerBeta) 
     nextB = calculateB(nextS,s,b,@@ServerBeta)
     setSB(location, nextS, nextB)
     #figure out the number of connections two turns from now
@@ -73,9 +99,9 @@ class Controller
     (diffrence / @@ServerThreshold).round
   end 
 
-  def changeInJava(currentValue, location)
+  def changeInJava(current, location)
     s,b = getSB(location)
-    nexts = calculateS(s,b,currentValue,@@JavaAlpha,@@JavaBeta) 
+    nexts = calculateS(s,b,current,@@JavaAlpha,@@JavaBeta) 
     nextb = calculateB(nexts,s,b,@@JavaBeta)
     setSB(location, nexts, nextb)
     future = nexts + 4 * nextb
@@ -83,9 +109,9 @@ class Controller
     (diffrence / @@JavaThreshold).round
   end
 
-  def changeInDatabases(currentValue, location)
+  def changeInDatabases(current, location)
     s,b = getSB(location)
-    nexts = calculateS(s,b,currentValue,@@DatabaseAlpha,@@DatabaseBeta) 
+    nexts = calculateS(s,b,current,@@DatabaseAlpha,@@DatabaseBeta) 
     nextb = calculateB(nexts,s,b,@@DatabaseBeta)
     setSB(location, nexts, nextb)
     future = nexts + 6 * nextb
@@ -122,6 +148,108 @@ class Controller
       @@APS = nextS
       @@APB = nextB
     end
+  end
+
+  def getAverage(location, type)
+    if location == "NA"
+      if type == "S"
+        return @@NASAverage
+      elsif type == "J"
+        return @@NAJAverage
+      else
+        return @@NADAverage
+      end
+    elsif location == "EU"
+      if type == "S"
+        return @@EUSAverage
+      elsif type == "J"
+        return @@EUJAverage
+      else 
+        return @@EUDAverage
+      end
+    else
+      if type == "S"
+        return @@APSAverage
+      elsif type == "J"
+        return @@APJAverage
+      else
+        return @@APDAverage
+      end
+    end
+  end
+
+  def setAverage(new, location, type)
+    if location == "NA"
+      if type == "S"
+        @@NASAverage = new
+      elsif type == "J"
+        @@NAJAverage = new
+      else
+        @@NADAverage = new
+      end
+    elsif location == "EU"
+      if type == "S"
+        @@EUSAverage = new
+      elsif type == "J"
+        @@EUJAverage = new
+      else 
+        @@EUDAverage = new
+      end
+    else
+      if type == "S"
+        @@APSAverage = new
+      elsif type == "J"
+        @@APJAverage = new
+      else
+        @@APDAverage = new
+      end
+    end
+  end
+
+  def updateAverage(current, location, type, n)
+    old = getAverage(location, type)
+    new = ((n-1)*old + current)/n
+    setAverage(new, location, type)
+  end
+
+  def clearAverages
+    @@N = 1
+    setAverage(0, "NA", "S")
+    setAverage(0, "NA", "J")
+    setAverage(0, "NA", "D")
+    setAverage(0, "EU", "S")
+    setAverage(0, "EU", "J")
+    setAverage(0, "EU", "D")
+    setAverage(0, "AP", "S")
+    setAverage(0, "AP", "J")
+    setAverage(0, "AP", "D")
+  end
+
+  def updateAverages(current)
+    csNA, csEU, csAP, cjNA, cjEU, cjAP, cdNA, cdEU, cdAP = breakApartCurrent(current)
+    updateAverage(csNA, "NA", "S", @@N)
+    updateAverage(csEU, "EU", "S", @@N)
+    updateAverage(csAP, "AP", "S", @@N)
+    updateAverage(cjNA, "NA", "J", @@N)
+    updateAverage(cjEU, "EU", "J", @@N)
+    updateAverage(cjAP, "AP", "J", @@N)
+    updateAverage(cdNA, "NA", "D", @@N)
+    updateAverage(cdEU, "EU", "D", @@N)
+    updateAverage(cdAP, "AP", "D", @@N)
+    @@N = @@N + 1
+  end
+
+  def breakApartCurrent(current)
+    csNA = current[1].to_i
+    csEU = current[2].to_i
+    csAP = current[3].to_i
+    cjNA = current[4].to_i
+    cjEU = current[5].to_i
+    cjAP = current[6].to_i
+    cdNA = current[7].to_i
+    cdEU = current[8].to_i
+    cdAP = current[9].to_i
+    return csNA, csEU, csAP, cjNA, cjEU, cjAP, cdNA, cdEU, cdAP
   end
 
 end 
